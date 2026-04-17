@@ -1,0 +1,80 @@
+<Page
+    x:Class="CharacterChat.Views.LibraryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:CharacterChat.Models"
+    mc:Ignorable="d">
+
+    <Grid x:Name="LibraryGrid" Padding="24" ColumnDefinitions="250,Auto,*">
+        <!-- Left Pane: Library & Books -->
+        <StackPanel Grid.Column="0" Spacing="16">
+            <TextBlock Text="Your Library" Style="{ThemeResource TitleLargeTextBlockStyle}" />
+            <TextBlock Text="Ingested books" Style="{ThemeResource BodyTextBlockStyle}" Opacity="0.7" />
+            
+            <Button Content="Import New Book" 
+                    Command="{x:Bind ViewModel.ImportBookCommand}"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Stretch"
+                    Padding="12,8"
+                    CornerRadius="8" />
+
+            <Grid Height="40">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsImporting, Mode=OneWay}" 
+                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Text="{x:Bind ViewModel.ImportProgress, Mode=OneWay}"
+                           TextWrapping="Wrap"
+                           FontSize="12" Opacity="0.7"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Visibility="{x:Bind ViewModel.IsImporting, Mode=OneWay}" />
+            </Grid>
+
+            <ListView ItemsSource="{x:Bind ViewModel.Books, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.SelectedBook, Mode=TwoWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Book">
+                        <StackPanel Margin="0,8">
+                            <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{x:Bind ImportedAt}" FontSize="12" Opacity="0.6" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+
+        <!-- Divider -->
+        <Border Grid.Column="1" Width="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="24,0" />
+
+        <!-- Right Pane: Extracted Characters -->
+        <StackPanel Grid.Column="2" Spacing="24">
+            <TextBlock Text="Extracted Characters" Style="{ThemeResource TitleLargeTextBlockStyle}" />
+            <TextBlock Text="Select a character to start chatting." 
+                       Style="{ThemeResource BodyTextBlockStyle}" Opacity="0.7" />
+
+            <GridView ItemsSource="{x:Bind ViewModel.Characters, Mode=OneWay}">
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Character">
+                        <Button Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16"
+                                Margin="8"
+                                Width="200"
+                                Height="200"
+                                Click="StartChat_Click"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{x:Bind Name}" FontWeight="Bold" FontSize="18" TextWrapping="Wrap" />
+                                <TextBlock Text="{x:Bind Aliases}" FontSize="12" Opacity="0.7" TextWrapping="Wrap" />
+                                <!-- Profile Json can be too long, a short description would be better if we parsed profileJson. Just showing "Profile extracted" -->
+                                <TextBlock Text="Profile extracted." FontSize="12" Opacity="0.5" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </StackPanel>
+    </Grid>
+</Page>

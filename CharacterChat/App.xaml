@@ -1,0 +1,17 @@
+<Application
+    x:Class="CharacterChat.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CharacterChat"
+    xmlns:controls="using:CharacterChat.Controls">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <controls:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

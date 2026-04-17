@@ -1,0 +1,40 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Mica and Acrylic Tint Colors -->
+    <Color x:Key="UserBubbleColor">#0078D4</Color>
+    <LinearGradientBrush x:Key="UserBubbleBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0" Color="#512BD4" />
+        <GradientStop Offset="1" Color="#0078D4" />
+    </LinearGradientBrush>
+
+    <!-- Message Bubble Styles -->
+    <Style x:Key="MessageBubbleStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="MaxWidth" Value="400" />
+    </Style>
+
+    <Style x:Key="UserBubbleBorderStyle" TargetType="Border" BasedOn="{StaticResource MessageBubbleStyle}">
+        <Setter Property="Background" Value="{StaticResource UserBubbleBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="CornerRadius" Value="16,16,2,16" />
+    </Style>
+
+    <Style x:Key="CharacterBubbleBorderStyle" TargetType="Border" BasedOn="{StaticResource MessageBubbleStyle}">
+        <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="CornerRadius" Value="16,16,16,2" />
+        <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundBaseLowBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- Typography -->
+    <Style x:Key="BodyTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+</ResourceDictionary>
