@@ -1,10 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import '../core/theme/scroll_theme.dart';
 import '../data/models.dart';
 import '../services/database_service.dart';
+import '../services/ingestion_service.dart';
+import '../services/extraction_service.dart';
 import 'chat_screen.dart';
+import 'widgets/extraction_progress_dialog.dart';
 
 /// Library screen — shows all characters the user can chat with.
 class LibraryScreen extends StatefulWidget {
@@ -44,6 +49,123 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
     await DatabaseService.insertCharacter(character);
     await _loadCharacters();
+  }
+
+  Future<void> _importFromBook() async {
+    final doc = await IngestionService.pickAndExtractText();
+    if (doc == null) return;
+
+    if (!mounted) return;
+    
+    // Show progress dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const ExtractionProgressDialog(status: "Reading Scroll..."),
+    );
+
+    try {
+      // 1. Save Book
+      final bookId = await DatabaseService.insertBook(Book(
+        title: doc.title,
+        filePath: doc.filePath,
+        importedAt: DateTime.now(),
+      ));
+
+      // 2. Extract Characters
+      if (!mounted) return;
+      final extractionService = Provider.of<ExtractionService>(context, listen: false);
+      
+      // Update dialog status
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const ExtractionProgressDialog(status: "Identifying Characters..."),
+      );
+
+      final profiles = await extractionService.extractCharacters(doc.text);
+
+      // 3. Save Characters
+      for (final profile in profiles) {
+        await DatabaseService.insertCharacter(Character(
+          bookId: bookId,
+          name: profile.name,
+          aliases: profile.aliases.join(", "),
+          profileJson: jsonEncode({
+            'name': profile.name,
+            'personality_traits': profile.personalityTraits,
+            'speech_style': profile.speechStyle,
+            'emotional_profile': profile.emotionalProfile,
+            'knowledge_scope': profile.knowledgeScope,
+            'knowledge_gaps': profile.knowledgeGaps,
+            'relationships': profile.relationships,
+            'sample_dialogue': profile.sampleDialogue,
+            'worldview': profile.worldview,
+            'formality_level': profile.formalityLevel,
+            'sentiment_baseline': profile.sentimentBaseline,
+          }),
+          extractedAt: DateTime.now(),
+        ));
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close progress
+      await _loadCharacters();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Succesfully imported ${profiles.length} characters from ${doc.title}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close progress
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to extract: $e')),
+      );
+    }
+  }
+
+  void _showAddMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: ScrollTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: ScrollTheme.primary.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ListTile(
+            leading: const Icon(Icons.auto_stories, color: ScrollTheme.primary),
+            title: Text('Import from Book (PDF/TXT)', style: GoogleFonts.cinzel(fontSize: 16)),
+            subtitle: Text('AI will read the book and find characters', style: GoogleFonts.crimsonText()),
+            onTap: () {
+              Navigator.pop(context);
+              _importFromBook();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_add, color: ScrollTheme.primary),
+            title: Text('Add Demo Character', style: GoogleFonts.cinzel(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context);
+              _addDemoCharacter();
+            },
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
   }
 
   void _openChat(Character character) {
@@ -140,10 +262,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addDemoCharacter,
-        icon: const Icon(Icons.person_add),
+        onPressed: _showAddMenu,
+        icon: const Icon(Icons.add),
         label: Text(
-          'Add Character',
+          'Add',
           style: GoogleFonts.cinzel(fontWeight: FontWeight.w600, letterSpacing: 0.5),
         ),
       ),

@@ -20,6 +20,11 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Chat" Icon="Message" Tag="Chat" />
                 <NavigationViewItem Content="Library" Icon="Library" Tag="Library" />
+                <NavigationViewItem Content="Server" Tag="Server">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE968;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" Margin="0,0,0,0">

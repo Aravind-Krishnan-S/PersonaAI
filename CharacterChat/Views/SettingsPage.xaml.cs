@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using CharacterChat.ViewModels;
+using CharacterChat.Models;
 
 namespace CharacterChat.Views
 {
@@ -21,6 +22,14 @@ namespace CharacterChat.Views
             if (sender is PasswordBox pb)
             {
                 ViewModel.ApiKey = pb.Password;
+            }
+        }
+
+        private void DiscoveredServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ListView list && list.SelectedItem is DiscoveredServer server)
+            {
+                ViewModel.ServerAddress = $"http://{server.IpAddress}:{server.Port}";
             }
         }
     }

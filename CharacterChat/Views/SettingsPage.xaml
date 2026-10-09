@@ -7,31 +7,189 @@
     xmlns:viewmodels="using:CharacterChat.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="40" MaxWidth="600" HorizontalAlignment="Left">
-        <StackPanel Spacing="24">
-            <TextBlock Text="Settings" Style="{ThemeResource TitleLargeTextBlockStyle}" />
-            
-            <StackPanel Spacing="8">
-                <TextBlock Text="API Key" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                <PasswordBox x:Name="ApiKeyBox" PlaceholderText="sk-..." PasswordChanged="ApiKeyBox_PasswordChanged" />
+    <Page.Resources>
+        <SolidColorBrush x:Key="SubtleForeground" Color="#FF9CA3AF" />
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#FF2D2D44" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="40">
+        <StackPanel Spacing="24" MaxWidth="640" HorizontalAlignment="Left">
+
+            <!-- ═══ Title ═══ -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Settings" Style="{ThemeResource TitleLargeTextBlockStyle}" FontWeight="Bold" />
+                <TextBlock Text="Configure how PersonaAI connects to AI models"
+                           FontSize="13" Foreground="{StaticResource SubtleForeground}" />
             </StackPanel>
 
-            <StackPanel Spacing="8">
-                <TextBlock Text="Base URL" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                <TextBox Text="{x:Bind ViewModel.BaseUrl, Mode=TwoWay}" PlaceholderText="https://api.openai.com/v1" />
-            </StackPanel>
+            <!-- ═══ Inference Source Selection ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Inference Source" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="Choose where AI processing happens"
+                               FontSize="12" Foreground="{StaticResource SubtleForeground}" />
 
-            <StackPanel Spacing="8">
-                <TextBlock Text="Chat Model" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                <TextBox Text="{x:Bind ViewModel.ChatModel, Mode=TwoWay}" PlaceholderText="gpt-4o-mini" />
-            </StackPanel>
+                    <RadioButtons x:Name="InferenceSourceRadio" 
+                                  SelectedIndex="{x:Bind ViewModel.SelectedInferenceSource, Mode=TwoWay}">
+                        <RadioButton Tag="0">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="☁️  API (OpenAI-compatible)" FontWeight="SemiBold" />
+                                <TextBlock Text="External service — OpenAI, Groq, Anthropic, etc." 
+                                           FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Tag="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="💻  Local Model (Ollama / LM Studio)" FontWeight="SemiBold" />
+                                <TextBlock Text="Runs on this PC — fully offline, no API key needed" 
+                                           FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Tag="2">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="🌐  Local Server (PersonaAI on LAN)" FontWeight="SemiBold" />
+                                <TextBlock Text="Connect to another PC running PersonaAI Server" 
+                                           FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                            </StackPanel>
+                        </RadioButton>
+                    </RadioButtons>
+                </StackPanel>
+            </Border>
 
-            <Button Content="Save Settings" 
-                    Command="{x:Bind ViewModel.SaveCommand}"
-                    Style="{ThemeResource AccentButtonStyle}"
-                    HorizontalAlignment="Right"
-                    Padding="24,8"
-                    CornerRadius="8" />
+            <!-- ═══ API Settings (visible when source = 0) ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                    x:Name="ApiSettingsCard">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE753;" FontSize="16" />
+                        <TextBlock Text="API Configuration" FontSize="16" FontWeight="SemiBold" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="API Key" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <PasswordBox x:Name="ApiKeyBox" PlaceholderText="sk-..." PasswordChanged="ApiKeyBox_PasswordChanged" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Base URL" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <TextBox Text="{x:Bind ViewModel.BaseUrl, Mode=TwoWay}" PlaceholderText="https://api.openai.com/v1" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Chat Model" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <TextBox Text="{x:Bind ViewModel.ChatModel, Mode=TwoWay}" PlaceholderText="gpt-4o-mini" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Embedding Model" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <TextBox Text="{x:Bind ViewModel.EmbeddingModel, Mode=TwoWay}" PlaceholderText="text-embedding-3-small" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Local Model Settings (visible when source = 1) ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                    x:Name="LocalModelCard">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE7F4;" FontSize="16" />
+                        <TextBlock Text="Local Model Configuration" FontSize="16" FontWeight="SemiBold" />
+                    </StackPanel>
+
+                    <TextBlock Text="Point to a locally running model server like Ollama or LM Studio. These are OpenAI-compatible and require no API key."
+                               FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource SubtleForeground}" />
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Endpoint URL" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <TextBox Text="{x:Bind ViewModel.LocalModelEndpoint, Mode=TwoWay}" 
+                                 PlaceholderText="http://localhost:11434/v1" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Model Name" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <TextBox Text="{x:Bind ViewModel.LocalModelName, Mode=TwoWay}" 
+                                 PlaceholderText="llama3, mistral, phi3, etc." />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Local Server Settings (visible when source = 2) ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                    x:Name="LocalServerCard">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE968;" FontSize="16" />
+                        <TextBlock Text="PersonaAI Server Connection" FontSize="16" FontWeight="SemiBold" />
+                    </StackPanel>
+
+                    <TextBlock Text="Connect to another PC on your network that's running PersonaAI Server. The personas and LLM on that PC will be used for your chats."
+                               FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource SubtleForeground}" />
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Server Address" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <TextBox Text="{x:Bind ViewModel.ServerAddress, Mode=TwoWay}" 
+                                 PlaceholderText="http://192.168.1.5:5142" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="🔍 Scan Network"
+                                Command="{x:Bind ViewModel.ScanNetworkCommand}"
+                                CornerRadius="8" Padding="12,6" />
+
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsScanning, Mode=OneWay}"
+                                      Width="20" Height="20" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Discovered servers list -->
+                    <ListView x:Name="DiscoveredServersList"
+                              ItemsSource="{x:Bind ViewModel.DiscoveredServers}"
+                              SelectionChanged="DiscoveredServer_SelectionChanged"
+                              MaxHeight="150"
+                              SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4,6">
+                                    <FontIcon Glyph="&#xE7EE;" FontSize="14" />
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="13" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Test Connection & Save ═══ -->
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="Test Connection" 
+                        Command="{x:Bind ViewModel.TestConnectionCommand}"
+                        CornerRadius="8" Padding="16,8" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsTestingConnection, Mode=OneWay}"
+                                  Width="16" Height="16" />
+                    <TextBlock Text="{x:Bind ViewModel.ConnectionTestResult, Mode=OneWay}" 
+                               FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"
+                               Foreground="{StaticResource SubtleForeground}" />
+                </StackPanel>
+
+                <Button Grid.Column="2"
+                        Content="Save Settings" 
+                        Command="{x:Bind ViewModel.SaveCommand}"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Padding="24,8" CornerRadius="8" />
+            </Grid>
+
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>

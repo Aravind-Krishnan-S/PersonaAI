@@ -22,12 +22,13 @@
 
             <Grid Height="40">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsImporting, Mode=OneWay}" 
+                              Visibility="{x:Bind GetVisibility(ViewModel.IsImporting), Mode=OneWay}"
                               HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock Text="{x:Bind ViewModel.ImportProgress, Mode=OneWay}"
                            TextWrapping="Wrap"
                            FontSize="12" Opacity="0.7"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Visibility="{x:Bind ViewModel.IsImporting, Mode=OneWay}" />
+                           Visibility="{x:Bind GetVisibility(ViewModel.IsImporting), Mode=OneWay}" />
             </Grid>
 
             <ListView ItemsSource="{x:Bind ViewModel.Books, Mode=OneWay}"
@@ -36,7 +37,7 @@
                     <DataTemplate x:DataType="models:Book">
                         <StackPanel Margin="0,8">
                             <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{x:Bind ImportedAt}" FontSize="12" Opacity="0.6" />
+                            <TextBlock Text="{x:Bind ImportedAt.ToString()}" FontSize="12" Opacity="0.6" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

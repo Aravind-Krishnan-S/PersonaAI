@@ -1,0 +1,6 @@
+{
+  "port": 5142,
+  "maxClients": 10,
+  "autoStart": false,
+  "databasePath": ""
+}

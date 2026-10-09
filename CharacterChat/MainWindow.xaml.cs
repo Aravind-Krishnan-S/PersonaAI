@@ -47,6 +47,9 @@ public sealed partial class MainWindow : Window
                 case "Library":
                     ContentFrame.Navigate(typeof(CharacterChat.Views.LibraryPage));
                     break;
+                case "Server":
+                    ContentFrame.Navigate(typeof(CharacterChat.Views.ServerHostingPage));
+                    break;
             }
         }
     }

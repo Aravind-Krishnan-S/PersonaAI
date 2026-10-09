@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/scroll_theme.dart';
 import 'services/inference_service.dart';
 import 'services/device_analyzer.dart';
+import 'services/extraction_service.dart';
 import 'screens/app_shell.dart';
 
 void main() async {
@@ -36,6 +37,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider.value(value: inferenceManager),
         Provider.value(value: deviceAnalyzer),
+        ProxyProvider<InferenceManager, ExtractionService>(
+          update: (context, inference, previous) => ExtractionService(inference.service),
+        ),
       ],
       child: const PersonaAIApp(),
     ),

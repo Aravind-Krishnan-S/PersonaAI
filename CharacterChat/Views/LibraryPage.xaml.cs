@@ -13,6 +13,8 @@ namespace CharacterChat.Views
             this.InitializeComponent();
         }
 
+        public Microsoft.UI.Xaml.Visibility GetVisibility(bool isVisible) => isVisible ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
         private void StartChat_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             if (sender is Button btn && btn.DataContext is Models.Character character)

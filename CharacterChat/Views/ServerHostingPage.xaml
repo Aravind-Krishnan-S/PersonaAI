@@ -1,0 +1,256 @@
+<Page
+    x:Class="CharacterChat.Views.ServerHostingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:CharacterChat.ViewModels"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <!-- Status indicator colors -->
+        <SolidColorBrush x:Key="OnlineBrush" Color="#FF10B981" />
+        <SolidColorBrush x:Key="OfflineBrush" Color="#FFEF4444" />
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FF1A1A2E" />
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#FF2D2D44" />
+        <SolidColorBrush x:Key="SubtleForeground" Color="#FF9CA3AF" />
+        <SolidColorBrush x:Key="AccentGradientStart" Color="#FF7C3AED" />
+        
+        <LinearGradientBrush x:Key="ServerHeaderGradient" StartPoint="0,0" EndPoint="1,0.5">
+            <GradientStop Offset="0" Color="#FF7C3AED" />
+            <GradientStop Offset="1" Color="#FF2563EB" />
+        </LinearGradientBrush>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="32,24">
+        <StackPanel Spacing="20" MaxWidth="800" HorizontalAlignment="Left">
+
+            <!-- ═══ Header ═══ -->
+            <Grid>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Server Hosting" 
+                               Style="{ThemeResource TitleLargeTextBlockStyle}"
+                               FontWeight="Bold" />
+                    <TextBlock Text="Host your AI personas for other devices on your network"
+                               Style="{ThemeResource BodyTextBlockStyle}"
+                               Foreground="{StaticResource SubtleForeground}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- ═══ Server Status Card ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Spacing="16">
+                        <!-- Status indicator -->
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Ellipse Width="14" Height="14" VerticalAlignment="Center">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush Color="{x:Bind GetStatusColor(ViewModel.IsServerRunning), Mode=OneWay}" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <TextBlock x:Name="StatusIndicator" 
+                                       Text="{x:Bind ViewModel.ServerStatus, Mode=OneWay}"
+                                       FontSize="20" FontWeight="SemiBold" />
+                        </StackPanel>
+
+                        <!-- Address -->
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Server Address" FontSize="12" 
+                                       Foreground="{StaticResource SubtleForeground}" />
+                            <TextBlock Text="{x:Bind ViewModel.ServerAddress, Mode=OneWay}" 
+                                       FontSize="14" IsTextSelectionEnabled="True"
+                                       FontFamily="Cascadia Code, Consolas" />
+                        </StackPanel>
+
+                        <!-- Uptime -->
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Uptime" FontSize="12"
+                                       Foreground="{StaticResource SubtleForeground}" />
+                            <TextBlock Text="{x:Bind ViewModel.Uptime, Mode=OneWay}" FontSize="14" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Power Toggle -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8" HorizontalAlignment="Center">
+                        <ToggleSwitch x:Name="ServerToggle"
+                                      IsOn="{x:Bind ViewModel.IsServerRunning, Mode=OneWay}"
+                                      Toggled="ServerToggle_Toggled"
+                                      OnContent="Running"
+                                      OffContent="Stopped"
+                                      MinWidth="120" />
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                      Width="24" Height="24"
+                                      HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══ Metrics Cards ═══ -->
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Connected Clients -->
+                <Border Grid.Column="0" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                        CornerRadius="10" Padding="16" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Clients" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                        <TextBlock Text="{x:Bind ViewModel.ConnectedClients.ToString(), Mode=OneWay}" 
+                                   FontSize="28" FontWeight="Bold" />
+                        <TextBlock Text="connected" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Available Personas -->
+                <Border Grid.Column="1" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                        CornerRadius="10" Padding="16" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Personas" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                        <TextBlock Text="{x:Bind ViewModel.AvailablePersonas.ToString(), Mode=OneWay}" 
+                                   FontSize="28" FontWeight="Bold" />
+                        <TextBlock Text="hosted" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Total Requests -->
+                <Border Grid.Column="2" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                        CornerRadius="10" Padding="16" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Requests" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                        <TextBlock Text="{x:Bind ViewModel.TotalRequests.ToString(), Mode=OneWay}" 
+                                   FontSize="28" FontWeight="Bold" />
+                        <TextBlock Text="served" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Memory Usage -->
+                <Border Grid.Column="3" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                        CornerRadius="10" Padding="16" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Memory" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                        <TextBlock Text="{x:Bind ViewModel.MemoryUsageMb.ToString(), Mode=OneWay}" 
+                                   FontSize="28" FontWeight="Bold" />
+                        <TextBlock Text="MB" FontSize="11" Foreground="{StaticResource SubtleForeground}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══ Configuration ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Configuration" FontSize="16" FontWeight="SemiBold" />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Server Port" FontSize="12" 
+                                       Foreground="{StaticResource SubtleForeground}" />
+                            <NumberBox x:Name="PortNumberBox"
+                                       Value="{x:Bind ViewModel.ServerPort, Mode=TwoWay}"
+                                       Minimum="1024" Maximum="65535"
+                                       SpinButtonPlacementMode="Compact"
+                                       PlaceholderText="5142" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Bottom">
+                            <ToggleSwitch Header="Auto-start with Windows"
+                                          IsOn="{x:Bind ViewModel.AutoStart, Mode=TwoWay}"
+                                          OnContent="Enabled" OffContent="Disabled" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Service Management ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Windows Service" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource SubtleForeground}">
+                        Install as a Windows Service to keep the server running even when the app is closed, 
+                        the device goes to sleep, or you log off. The server persists as long as the PC has power.
+                    </TextBlock>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Install Service"
+                                Command="{x:Bind ViewModel.InstallServiceCommand}"
+                                Style="{ThemeResource AccentButtonStyle}"
+                                CornerRadius="8" Padding="16,8" />
+
+                        <Button Content="Uninstall Service"
+                                Command="{x:Bind ViewModel.UninstallServiceCommand}"
+                                CornerRadius="8" Padding="16,8" />
+
+                        <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}"
+                                CornerRadius="6" Padding="12,6" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE946;" FontSize="12" />
+                                <TextBlock FontSize="12"
+                                           Text="{x:Bind GetServiceStatusText(ViewModel.IsServiceInstalled), Mode=OneWay}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Status message -->
+                    <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                               TextWrapping="Wrap" FontSize="12"
+                               Foreground="{StaticResource SubtleForeground}"
+                               Visibility="{x:Bind GetVisibility(ViewModel.StatusMessage), Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ How to Connect ═══ -->
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                    CornerRadius="12" Padding="24" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="How Other Devices Connect" FontSize="16" FontWeight="SemiBold" />
+
+                    <RichTextBlock TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource SubtleForeground}">
+                        <Paragraph>
+                            <Run Text="Once the server is running, other devices on your network can:" />
+                        </Paragraph>
+                    </RichTextBlock>
+
+                    <StackPanel Spacing="8" Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE774;" FontSize="14" />
+                            <TextBlock Text="Browse personas: GET /api/personas" 
+                                       FontFamily="Cascadia Code, Consolas" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8BD;" FontSize="14" />
+                            <TextBlock Text="Chat with a persona: POST /api/chat" 
+                                       FontFamily="Cascadia Code, Consolas" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE95E;" FontSize="14" />
+                            <TextBlock Text="Check status: GET /api/health" 
+                                       FontFamily="Cascadia Code, Consolas" FontSize="12" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4" Margin="0,8,0,0">
+                        <TextBlock Text="Other PersonaAI apps can find this server automatically using 'Local Server' mode in Settings."
+                                   FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource SubtleForeground}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

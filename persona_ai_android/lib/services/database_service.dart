@@ -70,6 +70,19 @@ class DatabaseService {
     );
   }
 
+  // ─── Books ───────────────────────────────────────────────────
+
+  static Future<List<Book>> getBooks() async {
+    final db = await database;
+    final maps = await db.query('Books');
+    return maps.map((m) => Book.fromMap(m)).toList();
+  }
+
+  static Future<int> insertBook(Book book) async {
+    final db = await database;
+    return db.insert('Books', book.toMap());
+  }
+
   // ─── Characters ──────────────────────────────────────────────
 
   static Future<List<Character>> getCharacters() async {

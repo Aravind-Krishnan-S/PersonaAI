@@ -35,6 +35,9 @@ dependencies:
   # Icons
   cupertino_icons: ^1.0.8
 
+  # Document Parsing
+  syncfusion_flutter_pdf: ^28.1.33
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

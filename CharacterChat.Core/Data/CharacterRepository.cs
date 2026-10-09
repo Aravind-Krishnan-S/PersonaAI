@@ -56,5 +56,61 @@ namespace CharacterChat.Data
             }
             return chars;
         }
+
+        /// <summary>
+        /// Gets all characters across all books.
+        /// </summary>
+        public List<Character> GetAllCharacters()
+        {
+            var chars = new List<Character>();
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT Id, BookId, Name, Aliases, ProfileJson, ExtractedAt FROM Characters";
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                chars.Add(new Character
+                {
+                    Id = reader.GetInt32(0),
+                    BookId = reader.GetInt32(1),
+                    Name = reader.GetString(2),
+                    Aliases = reader.GetString(3),
+                    ProfileJson = reader.GetString(4),
+                    ExtractedAt = DateTime.Parse(reader.GetString(5))
+                });
+            }
+            return chars;
+        }
+
+        /// <summary>
+        /// Gets a single character by ID.
+        /// </summary>
+        public Character? GetCharacterById(int id)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT Id, BookId, Name, Aliases, ProfileJson, ExtractedAt FROM Characters WHERE Id = $id";
+            command.Parameters.AddWithValue("$id", id);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new Character
+                {
+                    Id = reader.GetInt32(0),
+                    BookId = reader.GetInt32(1),
+                    Name = reader.GetString(2),
+                    Aliases = reader.GetString(3),
+                    ProfileJson = reader.GetString(4),
+                    ExtractedAt = DateTime.Parse(reader.GetString(5))
+                };
+            }
+            return null;
+        }
     }
 }
